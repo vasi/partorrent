@@ -24,8 +24,6 @@ WARNINGS
 
 You probably should not use this tool if you really want the entire torrent. It may be tempting to try emulating video streaming by downloading pieces sequentially. However, partorrent is not optimized for that use case. Both your download and the swarm as a whole will be slowed.
 
-Also, this torrent client will not seed at all! Make sure your tracker is ok with that. If you get banned, don't come complaining to me.
-
 
 USAGE
 -----
@@ -40,7 +38,7 @@ Display the structure of a torrent file, including the number and size of pieces
 
 $ simple_client.py myfile.torrent PIECE-SET
 
-Download selected pieces of the torrent file. If the torrent is already partially downloaded, existing parts will be kept, and only new ones downloaded. After the selected pieces are complete, the program will quit.
+Download selected pieces of the torrent file. If the torrent is already partially downloaded, existing parts will be kept, and only new ones downloaded. The program will continue to download or seed the torrent, quitting on ctrl-C.
 
 The format of PIECE-SET is a comma-separated list of piece ranges to download. Each range is either:
 
@@ -94,17 +92,8 @@ Here's an example, assuming we want to get the file 'myfile' in the ISO 'myiso' 
 5. Download only the desired pieces:
 
 	$ ./simple_client.py myiso.torrent 1260-1275
+	# Hit ctrl-C to exit when the download is complete
 
 6. Extract the desired segment:
 
 	$ dd if=myiso.iso bs=1 skip=661018624 count=7455982 out=myfile
-
-
-BUGS
-----
-
-- Sometimes the download stalls near the end. Maybe requests aren't timing out fast enough? Or peers are snubbing us due to the weird download pattern?
-
-A workaround is to simply Ctrl-C to stop the download, and then restart it.
-
-- The client doesn't seed.

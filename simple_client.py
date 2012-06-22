@@ -62,7 +62,7 @@ finished = False
 while not done[0]:
 	if (not finished) and h.is_finished():
 		finished = True
-		print h.name(), "\ncomplete, starting to seed"
+		print h.name(), "\nComplete, seeding. Type ctrl-C to exit."
 
 	s = h.status()
 	state_str = ['queued', 'checking', 'downloading metadata', \
