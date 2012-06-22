@@ -55,7 +55,11 @@ done = [False] # how i wish for non-local
 def interrupt(signum, frame):
 	done[0] = True
 signal.signal(signal.SIGINT, interrupt)
+finished = False
 while not done[0]:
+	if (not finished) and h.is_finished():
+		finished = True
+		print h.name(), 'complete, starting to seed'
 	s = h.status()
 	state_str = ['queued', 'checking', 'downloading metadata', \
 		'downloading', 'finished', 'seeding', 'allocating', 'checking fastresume']
@@ -65,8 +69,5 @@ while not done[0]:
 	sys.stdout.flush()
 
 	time.sleep(1)
-	done[0] = done[0] or h.is_finished()
 
 open(resume_file, 'wb').write(lt.bencode(h.write_resume_data()))
-print h.name(), 'complete'
-
