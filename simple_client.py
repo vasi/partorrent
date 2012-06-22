@@ -6,6 +6,7 @@
 
 import libtorrent as lt
 import time
+import signal
 import string
 import sys
 
@@ -49,7 +50,11 @@ h.prioritize_pieces(prios)
 h.resume()
 print 'starting', h.name()
 
-while (not h.is_finished()):
+done = [False] # how i wish for non-local
+def interrupt(signum, frame):
+	done[0] = True
+signal.signal(signal.SIGINT, interrupt)
+while not done[0]:
 	s = h.status()
 	state_str = ['queued', 'checking', 'downloading metadata', \
 		'downloading', 'finished', 'seeding', 'allocating', 'checking fastresume']
@@ -59,6 +64,7 @@ while (not h.is_finished()):
 	sys.stdout.flush()
 
 	time.sleep(1)
+	done[0] = done[0] or h.is_finished()
 
 open(resume_file, 'wb').write(lt.bencode(h.write_resume_data()))
 print h.name(), 'complete'
