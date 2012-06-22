@@ -16,6 +16,9 @@ pieces = sys.argv[2] if len(sys.argv) > 2 else '*'
 
 resume_file = '.fastresume'
 ses = lt.session()
+settings = ses.settings()
+settings.strict_end_game_mode = False
+ses.set_settings(settings)
 ses.listen_on(6881, 6891)
 
 info = lt.torrent_info(torrent)
@@ -45,7 +48,7 @@ for r in string.split(pieces, ','):
 	if last >= np:
 		last = np - 1
 	for i in range(first, last + 1):
-		prios[i] = 7
+		prios[i] = 1
 h.prioritize_pieces(prios)
 
 h.resume()
@@ -59,7 +62,8 @@ finished = False
 while not done[0]:
 	if (not finished) and h.is_finished():
 		finished = True
-		print h.name(), 'complete, starting to seed'
+		print h.name(), "\ncomplete, starting to seed"
+
 	s = h.status()
 	state_str = ['queued', 'checking', 'downloading metadata', \
 		'downloading', 'finished', 'seeding', 'allocating', 'checking fastresume']
