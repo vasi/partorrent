@@ -102,3 +102,5 @@ BUGS
 ----
 
 - Sometimes the download stalls near the end. Maybe requests aren't timing out fast enough? Or peers are snubbing us due to the weird download pattern?
+
+A workaround is to simply Ctrl-C to stop the download, and then restart it.
