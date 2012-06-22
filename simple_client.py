@@ -6,24 +6,51 @@
 
 import libtorrent as lt
 import time
+import string
 import sys
+
+torrent = sys.argv[1]
+pieces = sys.argv[2] if len(sys.argv) > 2 else '*'
 
 resume_file = '.fastresume'
 ses = lt.session()
 ses.listen_on(6881, 6891)
 
-info = lt.torrent_info(sys.argv[1])
-params = {'ti': info, 'save_path': './'}
+info = lt.torrent_info(torrent)
+params = {'ti': info, 'save_path': './', 'paused': True}
 try:
 	params['resume_data'] = open(resume_file, 'rb').read()
 except:
 	pass
 h = ses.add_torrent(params)
+
+np = info.num_pieces()
+prios = [0] * np
+for r in string.split(pieces, ','):
+	first, last = 0, np - 1
+	if string.strip(r) != '*':
+		ends = string.split(r, '-')
+		if len(ends) == 1:
+			first = last = int(r)
+		elif len(ends) == 2:
+			a, b = ends
+			first = int(a) if string.strip(a) != '' else first
+			last = int(b) if string.strip(b) != '' else last
+		else:
+			raise Exception("bad range")
+	if first < 0:
+		first = 0
+	if last >= np:
+		last = np - 1
+	for i in range(first, last + 1):
+		prios[i] = 7
+h.prioritize_pieces(prios)
+
+h.resume()
 print 'starting', h.name()
 
 while (not h.is_finished()):
 	s = h.status()
-
 	state_str = ['queued', 'checking', 'downloading metadata', \
 		'downloading', 'finished', 'seeding', 'allocating', 'checking fastresume']
 	print '\r%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % \
