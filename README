@@ -10,7 +10,7 @@ Many BitTorrent clients allow you to download only the files you want from a tor
 
 Some cases where this is useful:
 
-- Audio or video files. Great when multiple events are all in the same video, but you're only interested in one. Media players can sometimes handle the 'damaged' files this produces, especially if the header is available.
+- Audio or video files. Great when multiple events are all in the same video, but you're only interested in one. Media players can sometimes handle the 'damaged' files this produces, especially if the header is available. For AVI files, you can use my avipart utility: https://github.com/vasi/avipart/
 
 - ISO images with jigdo (http://atterer.org/jigdo/) information. The jigdo template makes it pretty easy to extract individual files from an incomplete download.
 
