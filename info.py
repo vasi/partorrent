@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/env python
 import libtorrent as lt
 import sys
 import math
