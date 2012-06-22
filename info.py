@@ -5,11 +5,11 @@ import math
 
 torrent = sys.argv[1]
 info = lt.torrent_info(torrent)
-#print info.num_pieces()
+print "Pieces: %d" % info.num_pieces()
+print "Piece size: %d K" % (info.piece_length() / 1024)
 for f in info.files():
 	off = float(f.offset)
 	psize = info.piece_length()
-	start = math.floor(off / psize)
-	end = math.floor((off + f.size) / psize)
-	print "%4d - %4d: %s" % (start, end, f.path)
+	start = off / psize
+	print "%7.2f: %s" % (start, f.path)
 
