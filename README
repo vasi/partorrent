@@ -19,10 +19,12 @@ Some cases where this is useful:
 Some file formats are less useful when just part of the data is downloaded. Compressed formats that don't contain directory information, such as gzip and bzip2, are very unlikely to be usable.
 
 
-WARNING
--------
+WARNINGS
+--------
 
-You probably should not use this tool if you really want the entire torrent. It may be tempting to emulate video streaming by downloading pieces sequentially. However, partorrent is not optimized for that use case. Both your download and the swarm as a whole will be slowed.
+You probably should not use this tool if you really want the entire torrent. It may be tempting to try emulating video streaming by downloading pieces sequentially. However, partorrent is not optimized for that use case. Both your download and the swarm as a whole will be slowed.
+
+Also, this torrent client will not seed at all! Make sure your tracker is ok with that. If you get banned, don't come complaining to me.
 
 
 USAGE
@@ -104,3 +106,5 @@ BUGS
 - Sometimes the download stalls near the end. Maybe requests aren't timing out fast enough? Or peers are snubbing us due to the weird download pattern?
 
 A workaround is to simply Ctrl-C to stop the download, and then restart it.
+
+- The client doesn't seed.
