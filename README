@@ -1,0 +1,104 @@
+partorrent - Download only selected pieces of a torrent
+
+Copyright Dave Vasilevsky <dave@vasilevsky.ca> 2012
+
+
+RATIONALE
+---------
+
+Many BitTorrent clients allow you to download only the files you want from a torrent. However, sometimes you'd rather download only certain segments of a file. This is especially true when bandwidth is expensive or limited, and time perhaps less so.
+
+Some cases where this is useful:
+
+- Audio or video files. Great when multiple events are all in the same video, but you're only interested in one. Media players can sometimes handle the 'damaged' files this produces, especially if the header is available.
+
+- ISO images with jigdo (http://atterer.org/jigdo/) information. The jigdo template makes it pretty easy to extract individual files from an incomplete download.
+
+- Certain archive formats that store the directory all in the same place, such as ZIP or ISO. You may need a specialized tool for parsing or 'repairing' the archive.
+
+Some file formats are less useful when just part of the data is downloaded. Compressed formats that don't contain directory information, such as gzip and bzip2, are very unlikely to be usable.
+
+
+WARNING
+-------
+
+You probably should not use this tool if you really want the entire torrent. It may be tempting to emulate video streaming by downloading pieces sequentially. However, partorrent is not optimized for that use case. Both your download and the swarm as a whole will be slowed.
+
+
+USAGE
+-----
+
+The only requirements to use partorrent is libtorrent-rasterbar's python bindings: http://www.rasterbar.com/products/libtorrent/ . It works well on OS X and Linux, and possibly Windows as well. Two tools are included:
+
+
+$ info.py myfile.torrent
+
+Display the structure of a torrent file, including the number and size of pieces, as well as which pieces contain file boundaries.
+
+
+$ simple_client.py myfile.torrent PIECE-SET
+
+Download selected pieces of the torrent file. If the torrent is already partially downloaded, existing parts will be kept, and only new ones downloaded. After the selected pieces are complete, the program will quit.
+
+The format of PIECE-SET is a comma-separated list of piece ranges to download. Each range is either:
+
+- '*', selecting all pieces
+- a single integer, selecting a single piece
+- two integers separated by a dash, selecting an inclusive range of pieces. If the first or second integer is omitted, it is equivalent to the first or last piece, respectively.
+
+The first piece is numbered zero. Examples of PIECE-SETs:
+
+*				All pieces are downloaded
+0				Only the first piece is downloaded
+10-12			Pieces 10, 11 and 12
+10,11,12		Same as above
+60-				Pieces 60 thru the end of the torrent
+-10,50,60-61	Pieces 0 thru 10, 50, 60 and 61
+
+
+CHOOSING PIECES
+---------------
+
+This tool is only useful if you choose the right pieces to download. This requires knowledge about the structure of the file you're downloading. A ZIP file stores its directory at the end; an AVI file will probably need the header, at the start.
+
+Here's an example, assuming we want to get the file 'myfile' in the ISO 'myiso' using jigdo metadata:
+
+1. Find our file's checksum within the .jigdo file:
+
+	$ grep myfile myiso.jigdo
+	bcaZJivBwFktm9Fd0auxyz=Server:myfile
+	^~~~~~~~~~~~~~~~~~~~~~ checksum
+
+2. Find the checksum in the .template file, to get our file's position:
+
+	$ jigdo-file ls --template myiso.template | grep bcaZJivBwFktm9Fd0auxyz
+	need-file      661018624      7455982 bcaZJivBwFktm9Fd0auxyz QuMgLslQUxU
+	               ^~~~~~~ offset ^~~~ size
+
+3. Find the piece structure of the torrent file:
+
+	$ ./info.py myiso.torrent
+	Pieces: 1391
+	Piece size: 512 K
+	   0.00: myiso.iso
+
+4. Divide by the piece size to determine the pieces we want:
+
+	$ echo '661018624 / (512 * 1024)' | bc
+	1260
+	$ echo '(661018624 + 7455982) / (512 * 1024)' | bc
+	1275
+
+5. Download only the desired pieces:
+
+	$ ./simple_client.py myiso.torrent 1260-1275
+
+6. Extract the desired segment:
+
+	$ dd if=myiso.iso bs=1 skip=661018624 count=7455982 out=myfile
+
+
+BUGS
+----
+
+- Sometimes the download stalls near the end. Maybe requests aren't timing out fast enough? Or peers are snubbing us due to the weird download pattern?
