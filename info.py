@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright Dave Vasilevsky 2012
 import libtorrent as lt
 import sys
 import math
