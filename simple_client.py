@@ -15,7 +15,11 @@ torrent = sys.argv[1]
 pieces = sys.argv[2] if len(sys.argv) > 2 else '*'
 
 resume_file = '.fastresume'
+report_alerts = False
+
 ses = lt.session()
+if report_alerts:
+	ses.set_alert_mask(lt.alert.category_t.all_categories)
 settings = ses.settings()
 settings.strict_end_game_mode = False
 ses.set_settings(settings)
@@ -60,6 +64,16 @@ def interrupt(signum, frame):
 signal.signal(signal.SIGINT, interrupt)
 finished = False
 while not done[0]:
+	reported = False
+	while report_alerts:
+		alert = ses.pop_alert()
+		if not alert:
+			break
+		if not reported:
+			reported = True
+			print ''
+		print alert
+	
 	if (not finished) and h.is_finished():
 		finished = True
 		print h.name(), "\nComplete, seeding. Type ctrl-C to exit."
